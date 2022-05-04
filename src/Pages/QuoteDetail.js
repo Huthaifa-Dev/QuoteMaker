@@ -1,46 +1,52 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link, Route, Routes, useMatch, useParams } from 'react-router-dom'
 import { Fragment } from 'react/cjs/react.production.min';
 
 import Comments from '../components/comments/Comments'
 import HighlightedQuote from '../components/quotes/HighlightedQuote'
-
-const DUMMY_DATA = [
-    {
-        id: 'q1',
-        author: 'Max',
-        text: 'Learning new Things'
-    },
-    {
-        id: 'q2',
-        author: 'MacAndCheese',
-        text: 'Learning how to make burguers'
-    }
-]
-
-
+import LoadingSpinner from '../components/UI/LoadingSpinner';
+import useHttp from '../hooks/use-http';
+import { getSingleQuote } from '../lib/api';
 
 function QuoteDetail() {
 
     const params = useParams();
-    const quote = DUMMY_DATA.find(quote => quote.id === params.quoteId)
-    const match = useMatch(`/quotes/:quoteId`);
+    // const match = useMatch(`/quotes/:quoteId`);
+    // console.log(match)
+    const { sendRequest, status, data: loadedQuote, error } = useHttp(getSingleQuote, true)
 
-    if (!quote) {
-        return <p>No quote found</p>
+    const { quoteId } = params;
+
+    useEffect(() => {
+        sendRequest(quoteId)
+    }, [sendRequest, quoteId])
+
+    if (status === 'pending') {
+        return <div className="centered">
+            <LoadingSpinner />
+        </div>
     }
-    // console.log(match);
+
+    if (error) {
+        return <p className="centered">{error}</p>
+    }
+
+    if (!loadedQuote.text) {
+        return <div className="centered">
+            <p>No quote found</p>
+        </div>
+    }
 
     return (
         <Fragment>
-            <HighlightedQuote text={quote.text} author={quote.author} />
+            <HighlightedQuote text={loadedQuote.text} author={loadedQuote.author} />
             <Routes>
                 <Route path={''} element={
                     <div className="centered">
-                        <Link className="btn--flat" to={`${match.pathname}/comments`}>Load Comments</Link>
+                        <Link className="btn--flat" to={`/quotes/${loadedQuote.id}/comments`}>Load Comments</Link>
                     </div>
                 } exact />
-                <Route path={'comments'} element={<Comments />} />
+                <Route path={'/comments'} element={<Comments />} />
             </Routes>
         </Fragment>
     )

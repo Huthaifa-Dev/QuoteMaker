@@ -8,7 +8,7 @@ const NewQuote = () => {
 
     useEffect(() => {
         if (status === 'completed');
-    }, [])
+    }, [status])
 
     const newQuoteHandler = (quoteData) => {
         sendRequest(quoteData)

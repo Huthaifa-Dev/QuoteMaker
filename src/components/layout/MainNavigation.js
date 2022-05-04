@@ -8,7 +8,7 @@ function MainNavigation() {
     const activeClass = navData => navData.isActive ? classes.active : '';
     return (
         <header className={classes.header}>
-            <div className={classes.logo}>MainNavigation</div>
+            <div className={classes.logo}>Quote Maker</div>
             <nav className={classes.nav}>
                 <ul>
                     <li>
